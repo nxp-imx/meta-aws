@@ -1,0 +1,68 @@
+From 5ca7b7213143c2b4a61bfecbbdc2a73bb9f62dcb Mon Sep 17 00:00:00 2001
+From: Feng Guo <feng.guo@nxp.com>
+Date: Thu, 19 Aug 2021 11:38:02 +0800
+Subject: [PATCH] Use NXP tvm
+
+---
+ .gitmodules    |  3 ++-
+ 3rdparty/tvm   |  2 +-
+ CMakeLists.txt | 16 ++++++++++++++++
+ 3 files changed, 19 insertions(+), 2 deletions(-)
+
+diff --git a/.gitmodules b/.gitmodules
+index 0db7025..2add5da 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -1,6 +1,7 @@
+ [submodule "3rdparty/tvm"]
+ 	path = 3rdparty/tvm
+-	url = https://github.com/neo-ai/tvm.git
++	url = https://github.com/NXPMicro/neo-ai-tvm.git
++	branch = nxp-v1.9.0
+ [submodule "3rdparty/treelite"]
+ 	path = 3rdparty/treelite
+ 	url = https://github.com/neo-ai/treelite
+diff --git a/3rdparty/tvm b/3rdparty/tvm
+index 25d0bd3..4443806 160000
+--- a/3rdparty/tvm
++++ b/3rdparty/tvm
+@@ -1 +1 @@
+-Subproject commit 25d0bd3aaed557f205538ca9d380484e45c09e4e
++Subproject commit 444380658402220254af7294bec87515d4de07f1
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index ca95ec8..c8287d5 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -53,6 +53,7 @@ option(USE_OPENCL  "Build with OpenCL" OFF)
+ option(USE_CUDA  "Build with CUDA" OFF)
+ option(USE_CUDNN "Build with CUDNN" OFF)
+ option(USE_TENSORRT "Build with Tensor RT" OFF)
++option(USE_VSI_NPU "Build for VSI NPU" OFF)
+ option(ENABLE_DATATRANSFORM "Enable datatransform for Sagemaker-scikit-learn-extension models" OFF)
+ 
+ 
+@@ -229,6 +230,21 @@ if(USE_TENSORRT)
+ 
+     set(USE_TENSORRT OFF)
+ endif()
++
++if(USE_VSI_NPU)
++    message("USING VSI_NPU")
++
++    add_definitions(-DUSE_VSI_NPU_RUNTIME)
++
++    file(GLOB_RECURSE VSI_NPU_SRCS
++        ${TVM_SRC}/src/runtime/contrib/vsi_npu/*.cc
++    )
++    list(APPEND DLR_LINKER_LIBS libtim-vx.so)
++
++    list(APPEND DLR_SRC ${VSI_NPU_SRCS})
++    set(USE_VSI_NPU OFF)
++endif()
++
+ if(WITH_HEXAGON)
+     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DDLR_HEXAGON")
+     list(APPEND DLR_SRC "src/dlr_hexagon/dlr_hexagon.cc")
+-- 
+2.17.1
+

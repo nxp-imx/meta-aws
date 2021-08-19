@@ -5,9 +5,11 @@ LICENSE = "Apache-2.0 & BSD-3-Clause"
 
 LIC_FILES_CHKSUM = "file://LICENSE;md5=34400b68072d710fecd0a2940a0d1658"
 
-BRANCH ?= "main"
+BRANCH ?= "release-1.9.0"
+PATCHTOOL = "git"
 
 SRC_URI = "git://github.com/neo-ai/neo-ai-dlr.git;branch=${BRANCH};protocol=https;name=neo-ai-dlr \
+           file://0001-Use-NXP-tvm.patch \
            file://0002-CMakeLists_remove_test_file_downloads.patch \
            https://neo-ai-dlr-test-artifacts.s3-us-west-2.amazonaws.com/tflite-models/cat224-3.txt;name=cat224-3 \
            https://neo-ai-dlr-test-artifacts.s3-us-west-2.amazonaws.com/test-data/street_small.npy;name=streetsmall \
@@ -20,7 +22,7 @@ SRC_URI = "git://github.com/neo-ai/neo-ai-dlr.git;branch=${BRANCH};protocol=http
            https://neo-ai-dlr-test-artifacts.s3-us-west-2.amazonaws.com/compiled-models/release-1.5.0/inverselabel-ml_m4.tar.gz;name=inverselabel;subdir=inverselabel \
           "
 
-SRCREV_neo-ai-dlr = "d363c087e2d93938beb3d3a836b0b29d0c910451"
+SRCREV_neo-ai-dlr = "f4b621421c900d5e2b078dbc7d6a9fbbec6353f6"
 
 SRC_URI[cat224-3.md5sum] = "c871a4f847b70a6913e6aba47e5a1664"
 SRC_URI[cat224-3.sha256sum]    = "2befeb0f99ef581cfed173257a4b9d2b037dc1e3965d4312c93709d542403273"
@@ -47,6 +49,12 @@ S = "${WORKDIR}/git"
 do_configure_prepend() {
   cd ${S}
   git submodule update --init --recursive
+
+  if [ "${S}" != "${B}" ]; then
+      rm -rf ${B}
+      mkdir -p ${B}
+      cd ${B}
+  fi
 }
 
 do_configure_append() {
@@ -65,6 +73,7 @@ inherit setuptools3 cmake
 
 B = "${S}/build"
 DISTUTILS_SETUP_PATH = "${S}/python"
+EXTRA_OECMAKE += "-DUSE_VSI_NPU=ON -DUSE_VSI_NPU_RUNTIME=ON"
 
 do_install() {
     install -d ${D}${includedir}/dlr_tflite
@@ -88,7 +97,9 @@ do_install() {
 PACKAGES =+ "${PN}-tests"
 FILES_${PN}-tests = "${datadir}/dlr/tests"
 RDEPENDS_${PN}-tests += "${PN}"
-DEPENDS += "googletest python3-setuptools"
+DEPENDS += "googletest python3-setuptools tim-vx"
+RDEPENDS_${PN} = "tim-vx opencv python3 python3-numpy python3-grpcio-tools \
+                  python3-grpcio python3-protobuf python3-requests python3-distro"
 
 # Versioned libs are not produced
 FILES_SOLIBSDEV = ""
