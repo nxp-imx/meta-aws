@@ -39,7 +39,7 @@ do_install() {
     install -m 0740 ${WORKDIR}/lib/Greengrass.jar              ${GG_ROOT}/alts/init/distro/lib/Greengrass.jar
 
     cd ${GG_ROOT}/alts
-    ln -s -r /${GG_ROOT}/alts/init current
+    ln -s /${GG_BASENAME}/alts/init current
     
     # Install systemd service file
     install -d ${D}${systemd_unitdir}/system/
@@ -62,7 +62,7 @@ inherit useradd
 
 USERADD_PACKAGES = "${PN}"
 GROUPADD_PARAM_${PN} = "-r ggc_group"
-USERADD_PARAM_${PN} = "-r -M -N -g ggc_group -s /bin/false ggc_user"
+USERADD_PARAM_${PN} = "-r -m -N -g ggc_group -s /bin/false ggc_user"
 
 #
 # Disable failing QA checks:
