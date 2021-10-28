@@ -1,0 +1,24 @@
+NXP Software Content Register
+
+--------------------------------------------
+
+Package:                   meta-aws 
+Outgoing License:          MIT License
+License File:              LICENSE
+Package Category:          BSP
+Type of content:           Yocto Receipe
+Description and comments:  EdgeManager/Greengrass SDK from AWS
+Release Location:          github/NXPMicro/meta-aws
+Origin:                    https://github.com/aws/meta-aws
+
+--------------------------------------------
+
+Package:                   0001-Use-NXP-tvm.patch/neo-ai-dlr_1.9.0.bb/imx-aws-setup-release.sh
+Outgoing License:          MIT License
+License File:              LICENSE
+Package Category:          BSP
+Type of content:           Yocto Receipe
+Description and comments:  pathces for NXP NPU enablement with AWS EdgeManager
+Release Location:          github/NXPMicro/meta-aws
+Origin:                    NXP
+
