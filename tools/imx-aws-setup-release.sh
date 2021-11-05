@@ -13,3 +13,4 @@ echo "IMAGE_INSTALL_append = \" greengrass-bin\"" >> $BUILD_DIR/conf/local.conf
 echo "IMAGE_INSTALL_append = \" aws-iot-device-sdk-python-v2\"" >> $BUILD_DIR/conf/local.conf
 echo "IMAGE_INSTALL_append = \" neo-ai-dlr\"" >> $BUILD_DIR/conf/local.conf
 echo "IMAGE_INSTALL_append = \" awscli\"" >> $BUILD_DIR/conf/local.conf
+echo "PREFERRED_VERSION_tim-vx = \"1.1.30\"" >> $BUILD_DIR/conf/local.conf

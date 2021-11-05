@@ -1,0 +1,26 @@
+From a98879dcdad96ce2b7db68c06beae5ee0e30bccd Mon Sep 17 00:00:00 2001
+From: Feng Guo <feng.guo@nxp.com>
+Date: Thu, 4 Nov 2021 18:50:18 +0800
+Subject: [PATCH] Keep original CXX_FLAGS
+
+Signed-off-by: Feng Guo <feng.guo@nxp.com>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 410b204..c413712 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -8,7 +8,7 @@ option(TIM_VX_USE_EXTERNAL_OVXLIB   "Use external OVXLIB"                   OFF)
+ 
+ set(CMAKE_CXX_STANDARD 14)
+ set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+-set(CMAKE_CXX_FLAGS "-Wall -Wextra -Werror")
++set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Werror")
+ set(CONFIG "" CACHE STRING "Target Platform")
+ 
+ if(${TIM_VX_CODE_COVERAGE})
+-- 
+2.17.1
+

@@ -17,8 +17,8 @@ index 0db7025..2add5da 100644
  [submodule "3rdparty/tvm"]
  	path = 3rdparty/tvm
 -	url = https://github.com/neo-ai/tvm.git
-+	url = https://github.com/NXPMicro/neo-ai-tvm.git
-+	branch = nxp-v1.9.0
++	url = ssh://git@bitbucket.sw.nxp.com/aitec/neo-ai-tvm.git
++	branch = nxp-v1.9.0_tim-vx-1.1.30
  [submodule "3rdparty/treelite"]
  	path = 3rdparty/treelite
  	url = https://github.com/neo-ai/treelite
@@ -28,7 +28,7 @@ index 25d0bd3..4443806 160000
 +++ b/3rdparty/tvm
 @@ -1 +1 @@
 -Subproject commit 25d0bd3aaed557f205538ca9d380484e45c09e4e
-+Subproject commit 444380658402220254af7294bec87515d4de07f1
++Subproject commit 9adae57e8a3a7e0873ab3551c0785f148362904a
 diff --git a/CMakeLists.txt b/CMakeLists.txt
 index ca95ec8..c8287d5 100644
 --- a/CMakeLists.txt
