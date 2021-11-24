@@ -1,0 +1,16 @@
+1.Set the aws key environment.
+  $export AWS_ACCESS_KEY_ID="YOUR AWS ACCESS KEY ID"
+  $export AWS_SECRET_ACCESS_KEY="YOUR AWS SECRET ACCESS KEY"
+  $export AWS_SESSION_TOKEN="YOUR AWS SESSION TOKEN"
+  $export AWS_REGION="us-west-2"  #replace with your aws region
+2.(OPTIONAL)Set the permission boundary ARN if necessary, you can find the ARN in
+  AWS management console->IAM->Policies
+  $export PERMISSIONS_BOUNDARY=arn:aws:iam::123456789012:policy/YourPermissionBoundary
+3.(OPTIONAL)Set the camera device id if necessary, the default is 3
+  $export CAMERA_DEVICE=3
+4.Set the PROJECT_NAME to one uniqe string with lowercase letters only.
+  $export PROJECT_NAME=project
+5.Run the setup script.
+  $./setup_cloud_service_and_device.sh
+6.After testing, clean the cloud environment.
+  $./10_clean_up.sh

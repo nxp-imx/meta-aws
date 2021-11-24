@@ -2,7 +2,7 @@
 #
 # Copyright 2021 NXP
 
-. imx-setup-release.sh $@
+. fsl-setup-internal-build.sh $@
 
 BUILD_DIR=.
 
