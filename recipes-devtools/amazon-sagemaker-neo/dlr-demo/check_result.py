@@ -6,9 +6,9 @@ import time
 def check_result():
     print("Greengrass service initializing...")
     while (not os.path.exists("/greengrass/v2/logs/greengrass.log")):
-        time.usleep(0.1)
+        time.sleep(0.1)
 
-    cmd = pexpect.spawn("tail -f /greengrass/v2/logs/greengrass.log")
+    cmd = pexpect.spawn("tail -F /greengrass/v2/logs/greengrass.log")
     index = cmd.expect(["Successfully connected to AWS IoT Core", pexpect.TIMEOUT], timeout=600)
     if (index == 0):
         print("Successfully connected to AWS IoT Core.")
@@ -21,7 +21,7 @@ def check_result():
     camera_log_path="/greengrass/v2/logs/aws.sagemaker." + sys.argv[1] + "_edgeManagerClientCameraIntegration.log"
     while (not os.path.exists(camera_log_path)):
         time.sleep(10)
-    cmd = pexpect.spawn("tail -f " + camera_log_path)
+    cmd = pexpect.spawn("tail -F " + camera_log_path)
     index = cmd.expect(["'index': '.*', 'confidence'", "Prediction failed"], timeout=6000)
     if (index == 0):
         print("Successfully get inference result.")
