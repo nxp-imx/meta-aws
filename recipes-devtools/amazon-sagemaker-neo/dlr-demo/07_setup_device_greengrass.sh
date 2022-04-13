@@ -10,8 +10,9 @@ sed -i "s/AWS_REGION/${AWS_REGION}/g" config.yaml
 
 GREENGRASS_ROOT=/greengrass/v2
 rm ${GREENGRASS_ROOT}/config/*
-rm ${GREENGRASS_ROOT}/log/*
+rm ${GREENGRASS_ROOT}/logs/*
 cp config.yaml ${GREENGRASS_ROOT}/config/
+cp video_source.mkv /
 
 wget https://www.amazontrust.com/repository/AmazonRootCA1.pem -O ${GREENGRASS_ROOT}/AmazonRootCA1.pem
 cp greengrass-v2-certs/* ${GREENGRASS_ROOT}

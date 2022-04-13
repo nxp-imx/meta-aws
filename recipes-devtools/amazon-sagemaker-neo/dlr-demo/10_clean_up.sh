@@ -1,10 +1,17 @@
+echo "Syncing system time with www.baidu.com"
+DATE_STR=$(curl -I www.baidu.com | grep Date)
+echo ${DATE_STR:5}
+date -s "${DATE_STR:5}"
+
+
 source ./project_config.sh
 
 echo "Cancelling greengrass deployment"
 aws greengrassv2 cancel-deployment --deployment-id ${DEPLOYMENT_ID}
 
 echo "Deleting greengrass components"
-aws greengrassv2 delete-component --arn ${MODEL_COMPONENT_ARN}
+aws greengrassv2 delete-component --arn ${MODEL_COMPONENT_ARN_V1}
+aws greengrassv2 delete-component --arn ${MODEL_COMPONENT_ARN_V2}
 aws greengrassv2 delete-component --arn ${CAMERA_COMPONENT_ARN}
 
 CERTIFICATE_ID="${CERT_ARN##*cert/}"

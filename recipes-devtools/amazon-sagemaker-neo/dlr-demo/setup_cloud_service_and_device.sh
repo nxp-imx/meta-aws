@@ -1,5 +1,4 @@
 MODULE_URL=https://storage.googleapis.com/download.tensorflow.org/models/tflite_11_05_08/mobilenet_v2_1.0_224_quant.tgz
-TING_CAMERA_DEVICE=3
 
 echo "Syncing system time with www.baidu.com"
 DATE_STR=$(curl -I www.baidu.com | grep Date)
@@ -48,5 +47,5 @@ source ./00_setup_cloud_service.sh
 sleep 30
 source ./07_setup_device_greengrass.sh
 
-sleep 30
-python3 ./check_result.py ${PROJECT_NAME}
+#sleep 30
+#python3 ./check_result.py ${PROJECT_NAME}
