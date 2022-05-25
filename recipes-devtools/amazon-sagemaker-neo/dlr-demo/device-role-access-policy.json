@@ -15,6 +15,7 @@
         "iot:Receive",
         "s3:*",
         "kinesis:*",
+        "kinesisvideo:*",
         "sagemaker:*",
         "greengrass:*"
       ],

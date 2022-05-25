@@ -42,3 +42,10 @@ echo "Removing s3 buckets"
 aws s3 rb s3://${COMPONENTS_BUCKET_NAME} --force
 aws s3 rb s3://${RESULTS_BUCKET_NAME} --force
 
+echo "Removing KVS service"
+aws kinesisvideo delete-signaling-channel --channel-arn $(aws kinesisvideo list-signaling-channels --channel-name-condition="{\"ComparisonValue\": \"$THING_NAME\"}"|jq -r .ChannelInfoList[0].ChannelARN)
+systemctl stop kvs
+systemctl disable kvs
+rm /lib/systemd/system/kvs.service
+rm /etc/default/kvs
+rm -r /kvs

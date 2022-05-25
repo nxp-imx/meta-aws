@@ -49,3 +49,7 @@ source ./07_setup_device_greengrass.sh
 
 #sleep 30
 #python3 ./check_result.py ${PROJECT_NAME}
+
+sleep 10
+source ./08_kvs_setup.sh
+
