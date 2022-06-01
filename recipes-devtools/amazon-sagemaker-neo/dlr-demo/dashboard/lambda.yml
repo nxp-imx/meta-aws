@@ -1,0 +1,264 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  DeployStage:
+    Description: Enter the branch used to initiate the deployment
+    Default: v1
+    Type: String
+  EnvironmentName:
+    Description: Enter the branch used to initiate the deployment
+    Default: aws-gg-demo
+    Type: String
+Mappings:
+  Region2S3WebsiteSuffix:
+    us-east-1:
+      Suffix: .s3.us-east-1.amazonaws.com
+    us-west-1:
+      Suffix: .s3.us-west-1.amazonaws.com
+    us-west-2:
+      Suffix: .s3.us-west-2.amazonaws.com
+    eu-west-1:
+      Suffix: .s3.eu-west-1.amazonaws.com
+    ap-northeast-1:
+      Suffix: .s3.ap-northeast-1.amazonaws.com
+    ap-northeast-2:
+      Suffix: .s3.ap-northeast-2.amazonaws.com
+    ap-southeast-1:
+      Suffix: .s3.ap-southeast-1.amazonaws.com
+    ap-southeast-2:
+      Suffix: .s3.ap-southeast-2.amazonaws.com
+    ap-south-1:
+      Suffix: .s3.ap-south-1.amazonaws.com
+    us-east-2:
+      Suffix: .s3.us-east-2.amazonaws.com
+    sa-east-1:
+      Suffix: .s3.sa-east-1.amazonaws.com
+    cn-north-1:
+      Suffix: .s3.cn-north-1.amazonaws.com.cn
+    eu-central-1:
+      Suffix: .s3.eu-central-1.amazonaws.com
+
+Resources:
+  ThingsListFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Ref EnvironmentName
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Handler: index.lambda_handler
+      Code: 
+        ZipFile: | 
+          import boto3
+          import json
+          client = boto3.client('iot', region_name="us-east-2")
+          def lambda_handler(event, context):
+              response = client.list_things(
+                  maxResults=123,
+                  usePrefixAttributeValue=False
+                  )
+              things = []
+              for thing in response['things']:
+                  try:
+                      thing['lat'] = float(thing['attributes']['lat'] )
+                      thing['lng'] = float(thing['attributes']['lng'] )
+                  except:
+                      thing['lat'] = 0
+                      thing['lng'] = 0
+                  thing.pop('attributes')
+                  things.append(thing)
+              return {
+                  'statusCode': 200,
+                  'things': things
+              }
+
+      Runtime: python3.8
+      MemorySize: 1000
+      Timeout: 900
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+        - Effect: Allow
+          Principal:
+            Service:
+            - lambda.amazonaws.com
+          Action:
+          - sts:AssumeRole
+      Path: "/"
+      Policies:
+      - PolicyName: root
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - logs:*
+            - iot:*
+            Resource: '*'
+
+  apiGateway:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Body:
+        openapi: "3.0.1"
+        info:
+          title: !Ref EnvironmentName
+        paths:
+          /things:
+            get:
+              consumes:
+              - "application/json"
+              produces:
+              - "application/json"
+              responses:
+                "200":
+                  description: "200 response"
+                  schema:
+                    $ref: "#/definitions/Empty"
+                  headers:
+                    Access-Control-Allow-Origin:
+                      type: "string"
+              x-amazon-apigateway-integration:
+                responses:
+                  default:
+                    statusCode: "200"
+                    responseParameters:
+                      method.response.header.Access-Control-Allow-Origin: "'*'"
+                payloadFormatVersion: "1.0"
+                #connectionId: !Ref HttpApiVPCLink
+                #connectionType: "VPC_LINK"
+                type: "AWS"
+                httpMethod: "POST"
+                uri: !Sub
+                  - arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${lambdaArn}/invocations
+                  - lambdaArn: !GetAtt ThingsListFunction.Arn
+
+  lambdaApiGatewayInvoke:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ThingsListFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${apiGateway}/*/GET/things
+
+  # Create a role for unauthorized acces to AWS resources. Very limited access. Only allows users in the previously created Identity Pool
+  CognitoUnAuthorizedRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal: 
+              Federated: "cognito-identity.amazonaws.com"
+            Action: 
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals: 
+                "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": unauthenticated
+      Policies:
+        - PolicyName: "CognitoUnauthorizedPolicy"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: "Allow"
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                  - "kinesisvideo:*"
+                Resource: "*"
+
+  # Create a role for authorized acces to AWS resources. Control what your user can access. This example only allows Lambda invokation
+  # Only allows users in the previously created Identity Pool
+  CognitoAuthorizedRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal: 
+              Federated: "cognito-identity.amazonaws.com"
+            Action: 
+              - "sts:AssumeRoleWithWebIdentity"
+            Condition:
+              StringEquals: 
+                "cognito-identity.amazonaws.com:aud": !Ref IdentityPool
+              "ForAnyValue:StringLike":
+                "cognito-identity.amazonaws.com:amr": authenticated
+      Policies:
+        - PolicyName: "CognitoAuthorizedPolicy"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - Effect: "Allow"
+                Action:
+                  - "mobileanalytics:PutEvents"
+                  - "cognito-sync:*"
+                  - "cognito-identity:*"
+                Resource: "*"
+
+  IdentityPool:
+    Type: AWS::Cognito::IdentityPool
+    Properties: 
+      AllowClassicFlow: true
+      AllowUnauthenticatedIdentities: true
+      IdentityPoolName: !Ref EnvironmentName
+
+  identityUnauthRoleAttach:
+    Type: AWS::Cognito::IdentityPoolRoleAttachment
+    Properties: 
+      IdentityPoolId: !Ref IdentityPool
+      Roles:
+        authenticated: !GetAtt CognitoAuthorizedRole.Arn
+        unauthenticated: !GetAtt CognitoUnAuthorizedRole.Arn
+
+  apiGatewayDeployment:
+    Type: AWS::ApiGateway::Deployment
+    DependsOn:
+      - apiGateway
+    Properties:
+      RestApiId: !Ref apiGateway
+      StageName: !Ref DeployStage
+
+  S3BucketForWebsiteContent:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: index.html
+  WebsiteCDN:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        Comment: CDN for S3-backed website
+        Enabled: 'true'
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: 'true'
+          TargetOriginId: only-origin
+          ViewerProtocolPolicy: allow-all
+        DefaultRootObject: index.html
+        Origins:
+        - CustomOriginConfig:
+            HTTPPort: '80'
+            HTTPSPort: '443'
+            OriginProtocolPolicy: https-only
+          DomainName: !Join ['', [!Ref 'S3BucketForWebsiteContent', !FindInMap [Region2S3WebsiteSuffix,
+                !Ref 'AWS::Region', Suffix]]]
+          Id: only-origin
+
+Outputs:
+  IdentityPoolID:
+    Value: !Ref IdentityPool
+  IdentityPoolRoleArn:
+    Value: !GetAtt CognitoUnAuthorizedRole.Arn
+  BucketName:
+    Value: !Ref S3BucketForWebsiteContent
+  WebSite:
+    Value: !GetAtt WebsiteCDN.DomainName
+  RestAPI:
+    Value: !Sub "https://${apiGateway}.execute-api.${AWS::Region}.amazonaws.com/${DeployStage}/things"

@@ -1,0 +1,84 @@
+/*
+ **********************************
+ *
+ * Copyright 2022 NXP
+ *
+ **********************************
+ */
+
+.ant-table .anticon svg {
+    color: red;
+    width: 25px;
+    transition: all .3s cubic-bezier(.18,.89,.32,1.28);
+}
+
+.ant-table .anticon svg:hover {
+    color: blue;
+    font-size: 1.2em;
+}
+.ant-table span:hover {
+    color: blue;
+}
+
+.video-react-video {
+    width: 100%;
+}
+
+.video-react-play-control{
+    display: none;
+}
+
+.video-react-big-play-button{
+    display:none;
+}
+
+.video-react-current-time{
+    display: none;
+}
+
+.video-react-time-control{
+    display: none;
+}
+
+.video-react-progress-control{
+    display: none;
+}
+
+.video-react-control-text{
+    display: none;
+}
+
+.video-react-icon-fullscreen{
+    display: none;
+}
+
+#info_win span{
+    text-align: center;
+    display: block;
+    float: left;
+}
+
+#info_win {
+    box-shadow: 10px 5px 10px #747373;
+    position: relative;
+}
+
+#info_win .anticon{
+    float:right;
+    font-size: 1.5em;
+    transition: all .3s cubic-bezier(.18,.89,.32,1.28);
+    padding-left: 6px;
+    width: 26px;
+}
+#info_win .anticon:hover{
+    transform: scale(1.1);
+    color: #1890ff;
+}
+
+.bar {
+    padding: 5px;
+}
+
+.videoRTC{
+    background: black;
+}
